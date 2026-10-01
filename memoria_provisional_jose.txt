@@ -1,0 +1,1 @@
+Preparadas creacion y borrado de partes de la BD, ningun problema mayor
