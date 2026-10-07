@@ -62,14 +62,13 @@ TABLESPACE = TBLS_clientes;
 
 Para tabla juegos
 ```sql
-CREATE TABLE Juegos (
-	JuegoID		INTEGER,
-	Titulo		VARCHAR(32)	NOT NULL,
-	Consola		VARCHAR(12)	NOT NULL,
-	Apellidos	VARCHAR(30)	NOT NULL,
-	Tamanio		INTEGER,
-	Editor		VARCHAR(32)
-)
+CREATE Table Juegos (
+	GameId         INTEGER PRIMARY KEY,
+	Title          VARCHAR(32) NOT NULL,
+	Console        VARCHAR(12) NOT NULL,
+	Publisher      VARCHAR(32),
+	RomSize        INTEGER
+ );
 ENGINE = InnoDB
 TABLESPACE = TBLS_juegos;
 ```
@@ -159,12 +158,6 @@ SET
 	Email			= IF(@email = '', NULL, normalizar_email(@email));
 ```
 
-En cuanto a el load de los ficheros .xml, creamos la tabla Juegos primero:
-```sql
-CREATE Table Juegos (title VARCHAR(32),console VARCHAR(12),
-                                publisher VARCHAR(32), romSize INTEGER);
-
-```
 y hacemos las inserciones de los tres ficheros de esta manera:
 
 Para el de GameBoy:
@@ -172,8 +165,9 @@ Para el de GameBoy:
 LOAD XML LOCAL INFILE '/home/querys/GameBoy.xml'
 INTO TABLE Juegos
 ROWS IDENTIFIED BY '<game>'
-(@title, @publisher, @romSize)
+(@imageNumber, @title, @publisher, @romSize)
 Set
+    GameId= @imageNumber+12000,
     title = LEFT(@title, 32), 
     console = "GameBoy",
     publisher = @publisher,
@@ -185,13 +179,13 @@ Para el de Nintendo:
 LOAD XML LOCAL INFILE '/home/querys/Nintendo.xml'
 INTO TABLE Juegos
 ROWS IDENTIFIED BY '<game>'
-(@title, @publisher, @romSize)
+(@imageNumber,@title, @publisher, @romSize)
 Set
+    GameId= @imageNumber+15000,
     title = LEFT(@title, 32), 
     console = "Nintendo",
     publisher = @publisher,
     romSize=@romSize;
-
 ```
 
 Para el de MegaDrive:
@@ -199,11 +193,11 @@ Para el de MegaDrive:
 LOAD XML LOCAL INFILE '/home/querys/MegaDrive.xml'
 INTO TABLE Juegos
 ROWS IDENTIFIED BY '<game>'
-(@title, @publisher, @romSize)
+(@imageNumber,@title, @publisher, @romSize)
 Set
+    GameId= @imageNumber+10000,
     title = LEFT(@title, 32), 
     console = "MegaDrive",
     publisher = LEFT(@publisher, 32),
     romSize=@romSize;
-
 ```
