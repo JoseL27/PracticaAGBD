@@ -158,3 +158,52 @@ SET
 	FechaContacto	= IF(@FechaCont = '', NULL, STR_TO_DATE(@FechaCont, "%Y/%c/%e")),
 	Email			= IF(@email = '', NULL, normalizar_email(@email));
 ```
+
+En cuanto a el load de los ficheros .xml, creamos la tabla Juegos primero:
+```sql
+CREATE Table Juegos (title VARCHAR(32),console VARCHAR(12),
+                                publisher VARCHAR(32), romSize INTEGER);
+
+```
+y hacemos las inserciones de los tres ficheros de esta manera:
+
+Para el de GameBoy:
+```sql
+LOAD XML LOCAL INFILE '/home/querys/GameBoy.xml'
+INTO TABLE Juegos
+ROWS IDENTIFIED BY '<game>'
+(@title, @publisher, @romSize)
+Set
+    title = LEFT(@title, 32), 
+    console = "GameBoy",
+    publisher = @publisher,
+    romSize=@romSize;
+```
+
+Para el de Nintendo:
+```sql
+LOAD XML LOCAL INFILE '/home/querys/Nintendo.xml'
+INTO TABLE Juegos
+ROWS IDENTIFIED BY '<game>'
+(@title, @publisher, @romSize)
+Set
+    title = LEFT(@title, 32), 
+    console = "Nintendo",
+    publisher = @publisher,
+    romSize=@romSize;
+
+```
+
+Para el de MegaDrive:
+```sql
+LOAD XML LOCAL INFILE '/home/querys/MegaDrive.xml'
+INTO TABLE Juegos
+ROWS IDENTIFIED BY '<game>'
+(@title, @publisher, @romSize)
+Set
+    title = LEFT(@title, 32), 
+    console = "MegaDrive",
+    publisher = LEFT(@publisher, 32),
+    romSize=@romSize;
+
+```
