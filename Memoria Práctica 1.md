@@ -63,12 +63,12 @@ TABLESPACE = TBLS_clientes;
 Para tabla juegos
 ```sql
 CREATE Table Juegos (
-	GameId         INTEGER PRIMARY KEY,
-	Title          VARCHAR(32) NOT NULL,
-	Console        VARCHAR(12) NOT NULL,
-	Publisher      VARCHAR(32),
-	RomSize        INTEGER
- );
+	JuegoID			INTEGER 	NOT NULL,
+	Titulo			VARCHAR(32)	NOT NULL,
+	Consola			VARCHAR(12)	NOT NULL,
+	Tamanio			INTEGER,
+	Editor			VARCHAR(32)
+);
 ENGINE = InnoDB
 TABLESPACE = TBLS_juegos;
 ```
@@ -205,11 +205,11 @@ INTO TABLE Juegos
 ROWS IDENTIFIED BY '<game>'
 (@imageNumber, @title, @publisher, @romSize)
 Set
-    GameId= @imageNumber+12000,
-    title = LEFT(@title, 32), 
-    console = "GameBoy",
-    publisher = @publisher,
-    romSize=@romSize;
+    JuegoID = @imageNumber+12000,
+    Titulo = LEFT(@title, 32), 
+    Consola = "GameBoy",
+    Editor = @publisher,
+    Tamanio = @romSize;
 ```
 
 Para el de Nintendo:
@@ -219,11 +219,11 @@ INTO TABLE Juegos
 ROWS IDENTIFIED BY '<game>'
 (@imageNumber,@title, @publisher, @romSize)
 Set
-    GameId= @imageNumber+15000,
-    title = LEFT(@title, 32), 
-    console = "Nintendo",
-    publisher = @publisher,
-    romSize=@romSize;
+    JuegoID = @imageNumber+15000,
+    Titulo = LEFT(@title, 32), 
+    Consola = "Nintendo",
+    Editor = @publisher,
+    Tamanio = @romSize;
 ```
 
 Para el de MegaDrive:
@@ -233,11 +233,11 @@ INTO TABLE Juegos
 ROWS IDENTIFIED BY '<game>'
 (@imageNumber,@title, @publisher, @romSize)
 Set
-    GameId= @imageNumber+10000,
-    title = LEFT(@title, 32), 
-    console = "MegaDrive",
-    publisher = LEFT(@publisher, 32),
-    romSize=@romSize;
+    JuegoID = @imageNumber+10000,
+    Titulo = LEFT(@title, 32), 
+    Consola = "MegaDrive",
+    Editor = LEFT(@publisher, 32),
+    Tamanio = @romSize;
 ```
 
 ```sql
