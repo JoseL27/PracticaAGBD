@@ -41,7 +41,7 @@ TABLESPACE = TBLS_NombreTabla;
 Para tabla clientes
 ```sql
 CREATE TABLE clientes (
-	ClienteID		INTEGER,
+	ClienteID		INTEGER		NOT NULL,
 	DNI				CHAR(9)		NOT NULL,
 	Nombre			VARCHAR(20)	NOT NULL,
 	Apellidos		VARCHAR(30) NOT NULL,
@@ -72,10 +72,48 @@ CREATE Table Juegos (
 ENGINE = InnoDB
 TABLESPACE = TBLS_juegos;
 ```
+
+Para tabla clientes_juegos
+```sql
+CREATE TABLE clientes_juegos (
+    ClienteID      INT		NOT NULL,
+    JuegoID        INT		NOT NULL,
+    FechaAlquiler  DATE		NOT NULL,
+    Comentarios    VARCHAR(500)
+)
+ENGINE = InnoDB
+TABLESPACE = TBLS_clientesjuegos;
+```
 # 4A Crear Claves Primarias
+```sql
+ALTER TABLE Clientes ADD PRIMARY KEY (ClienteID);
+ALTER TABLE Juegos ADD PRIMARY KEY (JuegoID);
+ALTER TABLE Clientes_Juegos ADD CONSTRAINT Clave_Clientes_Juegos PRIMARY KEY (ClienteID, JuegoID, FechaAlquiler);
+```
 # 4B Crear Claves Foráneas
+```sql
+ALTER TABLE Clientes_Juegos
+ADD CONSTRAINT Clave_Clientes 
+FOREIGN KEY (ClienteID) 
+REFERENCES Clientes(ClienteID);
+
+ALTER TABLE Clientes_Juegos
+ADD CONSTRAINT Clave_Juegos
+FOREIGN KEY (JuegoID) 
+REFERENCES Juegos(JuegoID);
+```
 # 4C Eliminar Claves Primarias
+```sql
+ALTER TABLE Clientes DROP PRIMARY KEY;
+ALTER TABLE Juegos DROP PRIMARY KEY;
+ALTER TABLE Clientes_Juegos DROP PRIMARY KEY;
+```
 # 4D Eliminar Claves Foráneas
+```sql
+ALTER TABLE Clientes DROP PRIMARY KEY;
+ALTER TABLE Juegos DROP PRIMARY KEY;
+ALTER TABLE Clientes_Juegos DROP PRIMARY KEY;
+```
 
 # 5 Todos Scripts previos juntos (1, 2A, 3A, 4A, 4B)
 # 6 Load Data
@@ -153,8 +191,8 @@ SET
 	CodPostal		= IF(@codPostal = '', NULL, @codPostal),
 	Telefono		= IF(@telefono = '', NULL, @telefono),
 	Canal			= IF(@canal = '', 0, @canal),
-	FechaNacimiento	= IF(@FechaNac = '', NULL, STR_TO_DATE(@FechaNac, "%Y/%c/%e")),
-	FechaContacto	= IF(@FechaCont = '', NULL, STR_TO_DATE(@FechaCont, "%Y/%c/%e")),
+	FechaNacimiento	= IF(@FechaNac = '', NULL, STR_TO_DATE(@FechaNac, "%Y-%c-%e")),
+	FechaContacto	= IF(@FechaCont = '', NULL, STR_TO_DATE(@FechaCont, "%Y-%c-%e")),
 	Email			= IF(@email = '', NULL, normalizar_email(@email));
 ```
 
@@ -200,4 +238,15 @@ Set
     console = "MegaDrive",
     publisher = LEFT(@publisher, 32),
     romSize=@romSize;
+```
+
+```sql
+LOAD DATA LOCAL INFILE "/home/querys/Clientes_juegos.txt"
+INTO TABLE clientes_juegos
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY "\t"
+LINES TERMINATED BY "\r\n"
+(ClienteId, JuegoID, @fecha, Comentarios)
+SET
+    FechaAlquiler = STR_TO_DATE(@fecha, "%Y-%c-%e");
 ```
