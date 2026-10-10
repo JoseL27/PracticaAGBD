@@ -294,3 +294,61 @@ Set
 ```
 
 # **HASTA AQUI ME HE QUEDAO**
+
+Me falta la insercion de datos de las compras/alquileres que hay(no me acuerdo de que era)
+
+### Instalación de Xampp:
+
+Para instalar Xampp, en mi caso, en Arch linux, ejecutamos el comando:
+
+```shell
+yay -S xampp
+```
+
+lo que nos descarga directamente la herramienta.
+
+Para poder acceder a la interfaz grafica de esta herramienta, nos conectamos por el navegador a la url:
+
+`http://localhost`
+
+Desde aqui nos iremos al apartado de phpmyadmin, donde veremos una interfaz grafica con muchos servidores distintos, pero donde no se ve el nuestro. Para poder conectarnos al servidor desde Xampp, tenemos que editar el archivo de configuracion que se encuentra en 
+
+```bash
+/opt/lampp/phpmyadmin/
+```
+
+ y editamos el archivo llamado:
+ 
+```bash 
+ config.inc.php
+```
+
+con nuestra herramienta de edicion favorita.
+
+Una vez entrado en el archivo, deberemos añadir, donde pone "End of servers configuration", este chacho de codigo:
+
+```bash
+$i++;
+/* Authentication type */
+$cfg['Servers'][$i]['auth_type'] = 'config';
+$cfg['Servers'][$i]['user'] = 'root';
+$cfg['Servers'][$i]['password'] = '';
+/* Server parameters */
+$cfg['Servers'][$i]['host'] = 'PracticaAGBD';
+$cfg['Servers'][$i]['host'] = 'localhost:3307';
+$cfg['Servers'][$i]['compress'] = false;
+$cfg['Servers'][$i]['AllowNoPassword'] = true;
+/
+```
+Para que en la interfaz nos aparezca una pestaña aparte donde tener nuestro servidor MySQL.
+Se puede hacer sin necesidad de esto, pero por comodidad y falsa sensacion de separacion lo haremos asi.
+
+una vez hemos comprobado que nos podemos conectar al server de MySQL desde Xampp, hacemos lo mismo, pero a la inversa, con MySQLWorkbench, para conectarnos al servidor de MariaDB, alojado en el puerto 3306. Comprobamos que tambien podemos hacer las querys necesarias y pasamos al siguiente paso.
+
+Ahora toca crear un backup de la base de datos MySQL y migrarla a MariaDB, por lo que hacemos el backup con el comando:
+
+```bash
+sudo docker exec -it agbd mysqldump -u root -p'' --all-databases > backup_total.sql
+```
+
+### **AHORA SI QUE HE LLEGADO A MI FIN**
