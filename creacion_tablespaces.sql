@@ -1,0 +1,11 @@
+CREATE TABLESPACE TBLS_clientes
+ADD DATAFILE 'DF_clientes.ibd'
+ENGINE=InnoDB;
+
+CREATE TABLESPACE TBLS_juegos
+ADD DATAFILE 'DF_juegos.ibd'
+ENGINE=InnoDB;
+
+CREATE TABLESPACE TBLS_clientes_juegos
+ADD DATAFILE 'DF_clientes_juegos.ibd'
+ENGINE=InnoDB;

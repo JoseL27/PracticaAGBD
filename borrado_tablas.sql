@@ -1,0 +1,5 @@
+USE PracABD1;
+
+DROP TABLE IF EXISTS Clientes;
+DROP TABLE IF EXISTS Juegos;
+DROP TABLE IF EXISTS Clientes_Juegos;
