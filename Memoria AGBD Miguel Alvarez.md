@@ -1,18 +1,18 @@
-Iniciamos la Practica creando el contenedor de Docker donde almacenaremos la imagen de MySQL para mantenerla aislada del sistema. Lo haremos en el puerto 3307, ya que mas adelante, MariaDB usara el 3306 por predeterminado y esto podría borrarnos la base de datos de MySQL al pisarse una con la otra(ya nos ha pasado).
-Comando de creacion:
+Iniciamos la Práctica creando el contenedor de Docker donde almacenaremos la imagen de MySQL para mantenerla aislada del sistema. Lo haremos en el puerto 3307, ya que más adelante, MariaDB usará el 3306 por predeterminado y esto podría borrarnos la base de datos de MySQL al pisarse una con la otra (ya nos ha pasado).
+Comando de creación:
  ```bash 
 docker run --name agbd -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3307:3306 -d mysql:8.0
  ```
 
-Una vez hecho esto podemos tanto conectarnos a nuestro servidor de MySQL por MySQLWorkbench como pasar ficheros .sql al contenedor y hacer source con el servicio de MySQL iniciado para ejecutar las querys (Preferible hacer esto para la inyeccion de datos, ya que se ejecuta en un entorno que no esta capado).
+Una vez hecho esto podemos tanto conectarnos a nuestro servidor de MySQL por MySQL Workbench como pasar ficheros .sql al contenedor y hacer source con el servicio de MySQL iniciado para ejecutar las querys (preferible hacer esto para la inyección de datos, ya que se ejecuta en un entorno que no está capado).
 
-creamos el fichero .sql de la creacion de la BBDD llamado database_Creation.sql:
+Creamos el fichero .sql de la creación de la BBDD llamado database_Creation.sql:
 ```sql
 CREATE DATABASE IF NOT EXISTS PracABD1
 	CHARACTER SET = utf8mb4;
 ```
-este comando creara un schema en nuestro servidor con el nombre PracABD1.
-guardariamos el fichero y lo enviariamos al contenedor con el comando:
+Este comando creará un esquema en nuestro servidor con el nombre PracABD1.
+Guardaríamos el fichero y lo enviaríamos al contenedor con el comando:
 
 ```bash
 sudo docker cp database_Creation.sql agbd:/home/querys
@@ -20,24 +20,24 @@ sudo docker cp database_Creation.sql agbd:/home/querys
 
 Para poder pasarlo al directorio agbd:/home/querys tenemos que haber creado antes dicho directorio, por lo que ejecutamos una shell del contenedor con el comando:
 
-```Bash
+```bash
 sudo docker exec -it agbd bash
 ```
 
 Ahora nos movemos a /home y creamos /querys con un mkdir.
 
-Hecho esto, sabriamos como ejecutar una bash en el contenedor llamado agbd y como pasara archivos a este contenedor. Ahora pasariamos a la ejecucion de dichos archivos.
+Hecho esto, sabríamos cómo ejecutar una bash en el contenedor llamado agbd y cómo pasar archivos a este contenedor. Ahora pasaríamos a la ejecución de dichos archivos.
 
-Para poder ejecutarlos hay que meterse a un entorno MySQL dentro del contenedor para ejecutar comandos desde dicha terminal, asi que ejecutamos el comando:
+Para poder ejecutarlos hay que meterse a un entorno MySQL dentro del contenedor para ejecutar comandos desde dicha terminal, así que ejecutamos el comando:
 
 ```bash
 sudo docker exec -it agbd mysql -u root -p --local-infile=1
 ```
 
-ANTENCION:
-No ponemos contraseña aunque nos la pida, le hemos dicho en el comando de creacion que no hace falta contraseña para entrar en el contenedor. Simplemente pulsamos ENTER.
+ATENCIÓN:
+No ponemos contraseña aunque nos la pida, le hemos dicho en el comando de creación que no hace falta contraseña para entrar en el contenedor. Simplemente pulsamos ENTER.
 
-Perfecto, estamos en un entorno MySQL dentro del contenedor, ahora tenemos que indicarle al entorno que tiene permitido ejecutar codigo de ficheros .sql, lo hacemos con este comando:
+Perfecto, estamos en un entorno MySQL dentro del contenedor, ahora tenemos que indicarle al entorno que tiene permitido ejecutar código de ficheros .sql, lo hacemos con este comando:
 
 ```sql
 SET GLOBAL local_infile = 1;
@@ -49,15 +49,15 @@ Al haber realizado todo esto podemos hacer:
 source /home/querys/database_Creation.sql
 ```
 
-y se creara nuestro schema llamado PracABD1.
+Y se creará nuestro esquema llamado PracABD1.
 
-creamos tambien el fichero de eliminacion de la BBDD, que tendra este aspecto:
+Creamos también el fichero de eliminación de la BBDD, que tendrá este aspecto:
 
 ```sql
 DROP DATABASE PracABD1;
 ```
 
-Ahora creamos el fichero de creacion de los TableSpaces:
+Ahora creamos el fichero de creación de los TableSpaces:
 
 ```sql
 CREATE TABLESPACE TBLS_clientes
@@ -73,7 +73,7 @@ CREATE TABLESPACE TBLS_clientesjuegos
 	ENGINE = InnoDB;
 ```
 
-Asi como el de eliminacion de estos:
+Así como el de eliminación de estos:
 
 ```sql
 DROP TABLESPACE TBLS_clientes;
@@ -81,7 +81,7 @@ DROP TABLESPACE TBLS_juegos;
 DROP TABLESPACE TBLS_clientesjuegos;
 ```
 
-Ahora el fichero de creacion de tablas:
+Ahora el fichero de creación de tablas:
 
 ```sql
 CREATE TABLE clientes (
@@ -105,7 +105,7 @@ TABLESPACE = TBLS_clientes;
 ```
 
 ```sql
-CREATE Table Juegos (
+CREATE TABLE Juegos (
 	JuegoID			INTEGER 	NOT NULL,
 	Titulo			VARCHAR(32)	NOT NULL,
 	Consola			VARCHAR(12)	NOT NULL,
@@ -127,7 +127,7 @@ ENGINE = InnoDB
 TABLESPACE = TBLS_clientesjuegos;
 ```
 
-Ahora que tenemos las tablas creadas, nos encargamos de asignarles claves primarias y foraneas:
+Ahora que tenemos las tablas creadas, nos encargamos de asignarles claves primarias y foráneas:
 
 ### **CLAVES PRIMARIAS**
 ```sql
@@ -135,7 +135,7 @@ ALTER TABLE Clientes ADD PRIMARY KEY (ClienteID);
 ALTER TABLE Juegos ADD PRIMARY KEY (JuegoID);
 ALTER TABLE Clientes_Juegos ADD CONSTRAINT Clave_Clientes_Juegos PRIMARY KEY (ClienteID, JuegoID, FechaAlquiler);
 ```
-### **CLAVES FORANEAS**
+### **CLAVES FORÁNEAS**
 ```sql
 ALTER TABLE Clientes_Juegos
 ADD CONSTRAINT Clave_Clientes 
@@ -157,7 +157,7 @@ ALTER TABLE Clientes DROP PRIMARY KEY;
 ALTER TABLE Juegos DROP PRIMARY KEY;
 ALTER TABLE Clientes_Juegos DROP PRIMARY KEY;
 ```
-### **CLAVES FORANEAS**
+### **CLAVES FORÁNEAS**
 
 ```sql
 ALTER TABLE Clientes DROP PRIMARY KEY;
@@ -165,13 +165,13 @@ ALTER TABLE Juegos DROP PRIMARY KEY;
 ALTER TABLE Clientes_Juegos DROP PRIMARY KEY;
 ```
 
-Ahora Pasamos a los scripts de Inyeccion de datos de la BBDD:
+Ahora pasamos a los scripts de inyección de datos de la BBDD:
 
-Antes de hacer esto, preprocesamos los datos del fichero .xsls para que actuen como un csv y poder tratar mejor con ellos.
+Antes de hacer esto, preprocesamos los datos del fichero .xlsx para que actúen como un csv y poder tratar mejor con ellos.
 
-Una vez realizado el preprocesamiento copiamos el fichero .csv de los datos procesados al contenedor para poder usarlo mas comodamente.
+Una vez realizado el preprocesamiento copiamos el fichero .csv de los datos procesados al contenedor para poder usarlo más cómodamente.
 
-Dicho esto, lo primero de todo creamos una funcion para normalizar el dato del Email, ya que habia que tener en cuenta ciertas reestricciones:
+Dicho esto, lo primero de todo creamos una función para normalizar el dato del Email, ya que había que tener en cuenta ciertas restricciones:
 
 ```sql
 DELIMITER $$
@@ -234,13 +234,13 @@ LOAD DATA LOCAL INFILE "/path/to/Clientes.txt"
 INTO TABLE clientes 
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY "Caracter del delimitador del preprocesado"
-LINES TERMINATED BY "\r\n" --esto es si es en windows por ejemplo
+LINES TERMINATED BY "\r\n" -- esto es si es en windows por ejemplo
 (ClienteId, DNI, Nombre, Apellidos, @genero, @direccion, @localidad, @provincia, @codPostal, @telefono, @canal, @FechaNac, @FechaCont, @email)
 SET
 	Genero			= IF(@genero = '', NULL, @genero), -- Se puede mejorar con NULLIF
 	Direccion		= IF(@direccion = '', NULL, @direccion),
 	Localidad		= IF(@localidad = '', NULL, @localidad),
-	Provincia		= IF(@provincia = '', NULL, REPLACE(@provincia, "", "")), -- Juego de dato fuente continene U+0081, quitar dicho caracter invisible
+	Provincia		= IF(@provincia = '', NULL, REPLACE(@provincia, " ", "")), -- Juego de dato fuente contiene U+0081, quitar dicho carácter invisible
 	CodPostal		= IF(@codPostal = '', NULL, @codPostal),
 	Telefono		= IF(@telefono = '', NULL, @telefono),
 	Canal			= IF(@canal = '', 0, @canal),
@@ -249,7 +249,7 @@ SET
 	Email			= IF(@email = '', NULL, normalizar_email(@email));
 ```
 
-Pasamos tambien los ficheros de datos de los videojuegos y creamos los tres ficheros .sql que corresponden a cada uno de los archivos .xml que contienen los datos de los juegos:
+Pasamos también los ficheros de datos de los videojuegos y creamos los tres ficheros .sql que corresponden a cada uno de los archivos .xml que contienen los datos de los juegos:
 
 Para el de GameBoy:
 ```sql
@@ -293,39 +293,39 @@ Set
     Tamanio = @romSize;
 ```
 
-# **HASTA AQUI ME HE QUEDAO**
+# **HASTA AQUÍ ME HE QUEDADO**
 
-Me falta la insercion de datos de las compras/alquileres que hay(no me acuerdo de que era)
+Me falta la inserción de datos de las compras/alquileres que hay (no me acuerdo de qué era).
 
 ### Instalación de Xampp:
 
-Para instalar Xampp, en mi caso, en Arch linux, ejecutamos el comando:
+Para instalar Xampp, en mi caso, en Arch Linux, ejecutamos el comando:
 
 ```shell
 yay -S xampp
 ```
 
-lo que nos descarga directamente la herramienta.
+Lo que nos descarga directamente la herramienta.
 
-Para poder acceder a la interfaz grafica de esta herramienta, nos conectamos por el navegador a la url:
+Para poder acceder a la interfaz gráfica de esta herramienta, nos conectamos por el navegador a la URL:
 
 `http://localhost`
 
-Desde aqui nos iremos al apartado de phpmyadmin, donde veremos una interfaz grafica con muchos servidores distintos, pero donde no se ve el nuestro. Para poder conectarnos al servidor desde Xampp, tenemos que editar el archivo de configuracion que se encuentra en 
+Desde aquí nos iremos al apartado de phpMyAdmin, donde veremos una interfaz gráfica con muchos servidores distintos, pero donde no se ve el nuestro. Para poder conectarnos al servidor desde Xampp, tenemos que editar el archivo de configuración que se encuentra en 
 
 ```bash
 /opt/lampp/phpmyadmin/
 ```
 
- y editamos el archivo llamado:
+ Y editamos el archivo llamado:
  
 ```bash 
  config.inc.php
 ```
 
-con nuestra herramienta de edicion favorita.
+Con nuestra herramienta de edición favorita.
 
-Una vez entrado en el archivo, deberemos añadir, donde pone "End of servers configuration", este chacho de codigo:
+Una vez dentro del archivo, deberemos añadir, donde pone "End of servers configuration", este fragmento de código:
 
 ```bash
 $i++;
@@ -341,9 +341,9 @@ $cfg['Servers'][$i]['AllowNoPassword'] = true;
 /
 ```
 Para que en la interfaz nos aparezca una pestaña aparte donde tener nuestro servidor MySQL.
-Se puede hacer sin necesidad de esto, pero por comodidad y falsa sensacion de separacion lo haremos asi.
+Se puede hacer sin necesidad de esto, pero por comodidad y falsa sensación de separación lo haremos así.
 
-una vez hemos comprobado que nos podemos conectar al server de MySQL desde Xampp, hacemos lo mismo, pero a la inversa, con MySQLWorkbench, para conectarnos al servidor de MariaDB, alojado en el puerto 3306. Comprobamos que tambien podemos hacer las querys necesarias y pasamos al siguiente paso.
+Una vez hemos comprobado que nos podemos conectar al servidor de MySQL desde Xampp, hacemos lo mismo, pero a la inversa, con MySQL Workbench, para conectarnos al servidor de MariaDB, alojado en el puerto 3306. Comprobamos que también podemos hacer las consultas necesarias y pasamos al siguiente paso.
 
 Ahora toca crear un backup de la base de datos MySQL y migrarla a MariaDB, por lo que hacemos el backup con el comando:
 
@@ -351,4 +351,4 @@ Ahora toca crear un backup de la base de datos MySQL y migrarla a MariaDB, por l
 sudo docker exec -it agbd mysqldump -u root -p'' --all-databases > backup_total.sql
 ```
 
-### **AHORA SI QUE HE LLEGADO A MI FIN**
+### **AHORA SÍ QUE HE LLEGADO A MI FIN**
