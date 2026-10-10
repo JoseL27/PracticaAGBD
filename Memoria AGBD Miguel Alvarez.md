@@ -240,7 +240,7 @@ SET
 	Genero			= IF(@genero = '', NULL, @genero), -- Se puede mejorar con NULLIF
 	Direccion		= IF(@direccion = '', NULL, @direccion),
 	Localidad		= IF(@localidad = '', NULL, @localidad),
-	Provincia		= IF(@provincia = '', NULL, REPLACE(@provincia, " ", "")), -- Juego de dato fuente contiene U+0081, quitar dicho carácter invisible
+	Provincia		= IF(@provincia = '', NULL, REPLACE(@provincia, "", "")), -- Juego de dato fuente contiene U+0081, quitar dicho carácter invisible
 	CodPostal		= IF(@codPostal = '', NULL, @codPostal),
 	Telefono		= IF(@telefono = '', NULL, @telefono),
 	Canal			= IF(@canal = '', 0, @canal),
