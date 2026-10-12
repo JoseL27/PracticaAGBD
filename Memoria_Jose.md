@@ -323,4 +323,100 @@ LOAD DATA LOCAL INFILE '/home/nigga/Nintendo.csv'
 
 ## Cargado Tabla Clientes_Juegos
 
-### TODO
+
+```sql
+LOAD DATA LOCAL INFILE '/path/to/Clientes_juegos.txt'
+INTO TABLE clientes_juegos
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY "\t"
+LINES TERMINATED BY "\r\n"
+(ClienteId, JuegoID, @fecha, Comentarios)
+SET
+    FechaAlquiler = STR_TO_DATE(@fecha, "%Y-%c-%e");
+```
+
+
+# Consultas e Indices 
+- Obtener el correo de un cliente a partir de su nombre y apellidos:
+	```sql
+	SELECT *
+	FROM Clientes
+	WHERE nombre LIKE '[nombre]' AND
+	apellidos LIKE '[apellidos]';
+	```
+- Obtener el número de clientes de una determinada provincia:
+	```sql
+	SELECT COUNT(*)
+	FROM Clientes
+	WHERE provincia LIKE '[provincia]';
+	```
+
+- Obtener un listado que contenga el nombre completo y el correo electrónico de los
+clientes que hayan contactado mediante un determinado canal en cierto periodo de
+tiempo:  
+
+```sql
+	SELECT nombre, apellidos, email
+	FROM Clientes
+	WHERE Canal = [canal] AND
+	FechaContacto LIKE '[año]%';
+```
+
+- Obtener un listado de clientes que contenga su nombre completo y el título del
+videojuego o videojuegos que han alquilado durante los años 2019 y 2020, así como
+la fecha concreta en la que han alquilado cada juego. El listado debe estar ordenado
+por apellidos y contener solo clientes que sean de una determinada provincia:
+
+```sql
+SELECT Nombre, Apellidos, Titulo, FechaAlquiler FROM 
+        Clientes JOIN Clientes_Juegos ON Clientes.ClienteID = Clientes_Juegos.ClienteID
+                JOIN Juegos ON Clientes_Juegos.JuegoID = Juegos.JuegoId
+                WHERE Clientes.Provincia = "Madrid"
+                AND FechaAlquiler >= '2019-01-01' 
+                AND FechaAlquiler < '2021-01-01'
+                ORDER BY Apellidos;
+```
+# Cosas con MariaDB
+
+## Acceso a mysql con phpmyadmin
+- Levantamos la base de datos mysql en el puerto 3307. En caso de usar docker: 
+	 docker run -d --name mysql-server -p 3306:3307 -e MYSQL_ROOT_PASSWORD=root -v mysql_data:/var/lib/mysql --restart unless-stopped mysql:latest
+- editamos /opt/lampp/phpmyadmin/config.inc.php:
+	Añadimos:
+		// Oracle MySQL Server
+		$i++;
+		/* Authentication type */
+		$cfg['Servers'][$i]['auth_type'] = 'config';
+		$cfg['Servers'][$i]['user'] = 'root';
+		$cfg['Servers'][$i]['password'] = 'root';
+		/* Server parameters */
+		$cfg['Servers'][$i]['verbose'] = 'Oracle MySQL';
+		$cfg['Servers'][$i]['host'] = 'localhost:3307';
+		$cfg['Servers'][$i]['compress'] = false;
+		$cfg['Servers'][$i]['AllowNoPassword'] = false;
+
+	Encima de la linea de "End of servers configuration"
+
+- Iniciamos  xampp: sudo xampp start
+-  Abrimos localhost en el navegador y accedemos a phpmyadmin, desde donde seleccionamos la base de datos a la que queramos acceder
+
+## Acceso a MariaDB con MySQL Workbench
+
+- Iniciamos XAMPP: sudo xampp start
+- Añadimos una nueva conexion en workbench en el puerto 3306
+
+
+
+## Cambios en tamaño de página
+
+- Borramos los contenidos de  la carpeta de datos de MariaDB (/opt/lampp/var/mysql en linux, C:/xampp/mysql/data en windows) menos la carpeta mysql
+- Editamos el archivo de configuración (/opt/lamp/etc/my.cnf en linux, C:/xampp/mysql/data/my.ini en windows) para modificar la variable innodb_page_size(4K, 16K, 64K) (y innodb_buffer_pool_size para el caso de 64K)
+- Arrancamos xampp y cargamos la base de datos desde backup
+
+- Tamaño para 4K: 26.5MB
+- Tamaño para 16K: 23.5MB
+- Tamaño para 64K: 24.6MB
+
+Se ve claramente que el tamaño de página afecta al tamaño total de la BD, siendo 16K la mejor opción para este caso, lo cual tiene sentido ya que con páginas de 4K se gasta mucho espacio en almacenar las cabeceras y los pies de las páginas ya que para un tamaño de  página tan pequeño harán falta muchas páginas, y para un tamaño tan grande como 64K se desperdicia mucho espacio si alguna página se llena parcialmente, ya que ese espacio que queda vacío en la página cuenta como ocupado.
+
+
