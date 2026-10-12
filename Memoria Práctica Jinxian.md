@@ -68,7 +68,7 @@ CREATE Table Juegos (
 	Consola			VARCHAR(12)	NOT NULL,
 	Tamanio			INTEGER,
 	Editor			VARCHAR(32)
-);
+)
 ENGINE = InnoDB
 TABLESPACE = TBLS_juegos;
 ```
@@ -84,6 +84,14 @@ CREATE TABLE clientes_juegos (
 ENGINE = InnoDB
 TABLESPACE = TBLS_clientesjuegos;
 ```
+
+# 3B Eliminar Tablas
+```sql
+DROP TABLE clientes;
+DROP TABLE juegos;
+DROP TABLE clientes_juegos;
+```
+
 # 4A Crear Claves Primarias
 ```sql
 ALTER TABLE Clientes ADD PRIMARY KEY (ClienteID);
@@ -110,9 +118,8 @@ ALTER TABLE Clientes_Juegos DROP PRIMARY KEY;
 ```
 # 4D Eliminar Claves Foráneas
 ```sql
-ALTER TABLE Clientes DROP PRIMARY KEY;
-ALTER TABLE Juegos DROP PRIMARY KEY;
-ALTER TABLE Clientes_Juegos DROP PRIMARY KEY;
+ALTER TABLE Clientes_Juegos DROP FOREIGN KEY Clave_Clientes;
+ALTER TABLE Clientes_Juegos DROP FOREIGN KEY Clave_Juegos;
 ```
 
 # 5 Todos Scripts previos juntos (1, 2A, 3A, 4A, 4B)
@@ -196,35 +203,7 @@ SET
 	Email			= IF(@email = '', NULL, normalizar_email(@email));
 ```
 
-y hacemos las inserciones de los tres ficheros de esta manera:
-
-Para el de GameBoy:
-```sql
-LOAD XML LOCAL INFILE '/home/querys/GameBoy.xml'
-INTO TABLE Juegos
-ROWS IDENTIFIED BY '<game>'
-(@imageNumber, @title, @publisher, @romSize)
-Set
-    JuegoID = @imageNumber+12000,
-    Titulo = LEFT(@title, 32), 
-    Consola = "GameBoy",
-    Editor = @publisher,
-    Tamanio = @romSize;
-```
-
-Para el de Nintendo:
-```sql
-LOAD XML LOCAL INFILE '/home/querys/Nintendo.xml'
-INTO TABLE Juegos
-ROWS IDENTIFIED BY '<game>'
-(@imageNumber,@title, @publisher, @romSize)
-Set
-    JuegoID = @imageNumber+15000,
-    Titulo = LEFT(@title, 32), 
-    Consola = "Nintendo",
-    Editor = @publisher,
-    Tamanio = @romSize;
-```
+y hacemos las inserciones de los tres ficheros juegos de esta manera:
 
 Para el de MegaDrive:
 ```sql
@@ -239,6 +218,36 @@ Set
     Editor = LEFT(@publisher, 32),
     Tamanio = @romSize;
 ```
+
+Para el de Nintendo:
+```sql
+LOAD XML LOCAL INFILE '/home/querys/Nintendo.xml'
+INTO TABLE Juegos
+ROWS IDENTIFIED BY '<game>'
+(@imageNumber,@title, @publisher, @romSize)
+Set
+    JuegoID = @imageNumber+12000,
+    Titulo = LEFT(@title, 32), 
+    Consola = "Nintendo",
+    Editor = @publisher,
+    Tamanio = @romSize;
+```
+
+Para el de GameBoy:
+```sql
+LOAD XML LOCAL INFILE '/home/querys/GameBoy.xml'
+INTO TABLE Juegos
+ROWS IDENTIFIED BY '<game>'
+(@imageNumber, @title, @publisher, @romSize)
+Set
+    JuegoID = @imageNumber+15000,
+    Titulo = LEFT(@title, 32), 
+    Consola = "GameBoy",
+    Editor = @publisher,
+    Tamanio = @romSize;
+```
+
+Finalmente cargamos los alquileres de los clientes con los juegos. Este paso va a generar Warnings y Skipped, puesto que hay clientes que alquilan juegos que no existen, y juegos que son alquilados por clientes no existentes. Vamos a garantizar la coherencia dentro del base de datos, y hemos decidido que las entradas de alquileres de cliente fantasma o juego de fantasma no van a entrar en el base de dato.
 
 ```sql
 LOAD DATA LOCAL INFILE "/home/querys/Clientes_juegos.txt"

@@ -10,7 +10,7 @@ Al analizar el documento Excel, se encuentra ciertos problemas:
 Un fichero CSV por definición, es un documento texto plano con estructura similar a una tabla, en cual, cada linea
 es una fila (Row) de datos, y las columnas (Column) separadas por comas.
 
-Que el fichero Excel original contenga en sus campos comas y comillas presentan un problema: no se podrán identificar columnas correctamente, y algunos Softwares (Como Microsoft Excel y LibreOffice Calc) rodearán el campo que contengan comas con doble-comillas.
+Que el fichero Excel original contenga en sus campos comas y comillas presentan un problema: no se podrán identificar columnas correctamente, y algunos Softwares (Como Microsoft Excel y LibreOffice Calc) rodearán el campo que contengan comas con doble-comillas cuando lo exporta.
 
 ![Notepad++ Clientes Exportado Excel en tabulador: campo con coma rodeado por comillas](docs_imagenes/clientes_exportado_excel_elmoral_rodeado_comillas.png)
 
