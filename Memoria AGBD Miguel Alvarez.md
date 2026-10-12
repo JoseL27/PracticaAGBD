@@ -348,7 +348,27 @@ Una vez hemos comprobado que nos podemos conectar al servidor de MySQL desde Xam
 Ahora toca crear un backup de la base de datos MySQL y migrarla a MariaDB, por lo que hacemos el backup con el comando:
 
 ```bash
-sudo docker exec -it agbd mysqldump -u root -p'' --all-databases > backup_total.sql
+sudo docker exec -i agbd mysqldump -u root -p'' PracABD1 > backup_schema.sql
 ```
 
-### **AHORA SÍ QUE HE LLEGADO A MI FIN**
+Hecho esto nos pedira nuestra contraseña y luego la contraseña del servidor MySQL, que es este caso es '' porque le hemos dicho que no hace falta contraseña al crearlo (Esta practica no es recomendable, solo hacer por motivos de agilidad en la practica).
+
+Como nosotros estamos usando una versión más reciente de MySQL, nuestro character set es realmente utf8mb4_0900_ai_ci, y este estandar genera problemas con MariaDB, asi que entramos a editar nuestro backup_schema.sql con nuestro editor favorito (Neovim) y cambiamos todas las ocurrencias de nuestro standar utf8mb4_0900_ai_ci por utf8mb4_general_ci, en este caso yo lo he hecho con el comando :
+
+```nvim
+:%s/utf8mb4_0900_ai_ci/utf8mb4_general_ci/g
+```
+
+Ahora desde la interfaz gráfica de PhpMyAdmin, nos metemos en la base de datos PracABD1Maria, que es la que hemos creado para que sea de MariaDB.
+En el panel superior le damos a "IMPORTAR", elegimos el estandar de caracteres de utf8 y seleccionamos nuestro archivo de backup.
+Hecho esto no deberia haber ningun problema mas y se deberian insertar los datos correctamente.
+
+Para cambiar el tamaño de Pagina:
+
+Primero de todo apagamos xammp con 
+
+```bash
+sudo xampp stop
+```
+
+y entramos al archivo de configuracion de 
