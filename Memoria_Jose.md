@@ -376,6 +376,27 @@ SELECT Nombre, Apellidos, Titulo, FechaAlquiler FROM
                 AND FechaAlquiler < '2021-01-01'
                 ORDER BY Apellidos;
 ```
+
+- Dos consultas de interes:
+	- Consulta 1, muestra los 10 juegos que mas se han alquilado en total:
+	```sql
+	SELECT Titulo, COUNT(*) AS veces_alquilado
+	FROM Clientes_Juegos 
+	INNER JOIN Juegos ON Juegos.JuegoID = Clientes_Juegos.JuegoID
+	WHERE consola LIKE '[consola]'
+	GROUP BY Clientes_Juegos.JuegoID
+	ORDER BY veces_alquilado DESC
+	LIMIT 10;
+	```
+
+	- Consulta 2, muestra los juegos que se han alquilado en una fecha específica:
+	```sql
+	SELECT Titulo
+	FROM Clientes_Juegos 
+	INNER JOIN Juegos ON Clientes_Juegos.JuegoID = Juegos.JuegoID
+	WHERE FechaAlquiler LIKE '[anio]-[mes]-[dia]';
+	```
+
 # Cosas con MariaDB
 
 ## Acceso a mysql con phpmyadmin
