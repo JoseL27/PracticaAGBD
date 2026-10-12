@@ -402,14 +402,14 @@ SELECT Nombre, Apellidos, Titulo, FechaAlquiler FROM
 ## Acceso a mysql con phpmyadmin
 - Levantamos la base de datos mysql en el puerto 3307. En caso de usar docker: 
 	 docker run -d --name mysql-server -p 3306:3307 -e MYSQL_ROOT_PASSWORD=root -v mysql_data:/var/lib/mysql --restart unless-stopped mysql:latest
-- editamos /opt/lampp/phpmyadmin/config.inc.php:
+- Editamos el fichero de configuración de phpmyadmin (/opt/lampp/phpmyadmin/config.inc.php en linux):
 	Añadimos:
 		// Oracle MySQL Server
 		$i++;
 		/* Authentication type */
 		$cfg['Servers'][$i]['auth_type'] = 'config';
-		$cfg['Servers'][$i]['user'] = 'root';
-		$cfg['Servers'][$i]['password'] = 'root';
+		$cfg['Servers'][$i]['user'] = '[usuario]';
+		$cfg['Servers'][$i]['password'] = '[contraseña]';
 		/* Server parameters */
 		$cfg['Servers'][$i]['verbose'] = 'Oracle MySQL';
 		$cfg['Servers'][$i]['host'] = 'localhost:3307';
@@ -425,9 +425,6 @@ SELECT Nombre, Apellidos, Titulo, FechaAlquiler FROM
 
 - Iniciamos XAMPP: sudo xampp start
 - Añadimos una nueva conexion en workbench en el puerto 3306
-
-
-
 ## Cambios en tamaño de página
 
 - Borramos los contenidos de  la carpeta de datos de MariaDB (/opt/lampp/var/mysql en linux, C:/xampp/mysql/data en windows) menos la carpeta mysql
