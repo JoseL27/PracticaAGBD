@@ -133,7 +133,7 @@ ALTER TABLE Clientes_Juegos DROP FOREIGN KEY Clave_Juegos;
 Para crear la estructura de la Base de datos ejecutamos los scripts anteriores en orden (1A, 2A, 3A, 4A, 4B)
 
 ## 6 Cargado de Datos
-Para Clientes, requiere el documento separado por tabuladores `Clientes.txt` derivado del juego de datos `Clientes.xlsx`
+Para Clientes, requiere el documento separado por tabuladores `Clientes.txt` derivado del juego de datos `Clientes.xlsx`, el proceso para generar `Clientes.txt` se puede ver en el anexo al final del documento.
 
 Si hace falta eliminar datos en la tabla `cliente` y función `normalizar_email`:
 `TRUNCATE TABLE IF EXISTS clientes;`
@@ -689,7 +689,7 @@ ON juegos (editor, consola);
 Observación: para la consulta N6, aunque hubo mejoras en teoría, en práctica no tiene mucho mejora. Puesto que solo es diferencia de 1ms.
 ### 2E Los índices más efectivas para consulta 1 y 4
 Para la consulta 1, el índice `idx_clientes_apellidos_nombre` ha sido el más efectivo. Puesto que ha reducido el tiempo de consulta considerablemente.
-Para la consulta 3, aunque se crea su propio índice `idx_clientes_juegos_anioalquiler`, esto no ha afectado mucho en el tiempo de consulta, además, en su sentencia de EXPLAIN se aprecia que ha usado los índices de **la clave foránea y la clave primaria de los clientes**. Lo cual simplemente con crear las claves primarias y foráneas ya acelera considerablemente esta consulta.
+Para la consulta 4, aunque se crea su propio índice `idx_clientes_juegos_anioalquiler`, esto no ha afectado mucho en el tiempo de consulta, además, en su sentencia de EXPLAIN se aprecia que ha usado los índices de **la clave foránea y la clave primaria de los clientes**. Lo cual simplemente con crear las claves primarias y foráneas ya acelera considerablemente esta consulta.
 ### 2D y 2F Conclusión de los índices
 Finalizado este análisis, se concluye ciertos puntos para creación y administración de índices:
 - Crear índice no siempre acelera la consulta, aunque sea campos relevantes en `WHERE` y `GROUP BY` de las consultas
@@ -706,16 +706,16 @@ Finalizado este análisis, se concluye ciertos puntos para creación y administr
 - Editamos el fichero de configuración de phpmyadmin (/opt/lampp/phpmyadmin/config.inc.php en linux):
 	Añadimos:
 		// Oracle MySQL Server
-		$i++;
-		/* Authentication type */
-		$cfg['Servers'][$i]['auth_type'] = 'config';
-		$cfg['Servers'][$i]['user'] = '[usuario]';
-		$cfg['Servers'][$i]['password'] = '[contraseña]';
-		/* Server parameters */
-		$cfg['Servers'][$i]['verbose'] = 'Oracle MySQL';
-		$cfg['Servers'][$i]['host'] = 'localhost:3307';
-		$cfg['Servers'][$i]['compress'] = false;
-		$cfg['Servers'][$i]['AllowNoPassword'] = false;
+		\$i++;
+		/* Authentication type */ 
+		\$cfg['Servers'][$i]['auth_type'] = 'config';
+		\$cfg['Servers'][$i]['user'] = '[usuario]';
+		\$cfg['Servers'][$i]['password'] = '[contraseña]';
+		\/* Server parameters */
+		\$cfg['Servers'][$i]['verbose'] = 'Oracle MySQL';
+		\$cfg['Servers'][$i]['host'] = 'localhost:3307';
+		\$cfg['Servers'][$i]['compress'] = false;
+		\$cfg['Servers'][$i]['AllowNoPassword'] = false;
 
 	Encima de la linea de "End of servers configuration"
 
@@ -743,3 +743,61 @@ Creamos el backup en formato SQL (desde phpmyadmin -> export por ejemplo), y acc
 
 Se ve claramente que el tamaño de página afecta al tamaño total de la BD, siendo 16K la mejor opción para este caso, lo cual tiene sentido ya que con páginas de 4K se gasta mucho espacio en almacenar las cabeceras y los pies de las páginas ya que para un tamaño de  página tan pequeño harán falta muchas páginas, y para un tamaño tan grande como 64K se desperdicia mucho espacio si alguna página se llena parcialmente, ya que ese espacio que queda vacío en la página cuenta como ocupado.
 
+
+
+# Anexo: Transformación de juegos de datos (Clientes, Clientes_Juegos)
+
+Al analizar el documento Excel, se encuentra ciertos problemas:
+- Algunos campos contienen el carácter coma `,`
+- Algunos campos contienen el carácter doble-comilla `"`
+
+![Excel Juego de Datos Clientes: Búsqueda en campos comas](docs_imagenes/excel_busqueda_comas.png)
+![Excel Juego de Datos Clientes: Búsqueda en campos comillas](docs_imagenes/excel_busqueda_comillas.png)
+
+Un fichero CSV por definición, es un documento texto plano con estructura similar a una tabla, en cual, cada linea
+es una fila (Row) de datos, y las columnas (Column) separadas por comas.
+
+Que el fichero Excel original contenga en sus campos comas y comillas presentan un problema: no se podrán identificar columnas correctamente, y algunos Softwares (Como Microsoft Excel y LibreOffice Calc) rodearán el campo que contengan comas con doble-comillas cuando lo exporta.
+
+![Notepad++ Clientes Exportado Excel en tabulador: campo con coma rodeado por comillas](docs_imagenes/clientes_exportado_excel_elmoral_rodeado_comillas.png)
+
+El rodeo de comillas presentarán otro problema, si algún campo ya por sí contienen comillas (`"CANTINFLAS"`), se duplicará las comillas, y se rodeará el campo entero con otro doble comilla. Lo cual tenemos un Comilla-Inception.
+
+![Notepad++ Clientes Exportado Excel en tabulador: campo con comillas rodeado por comillas](docs_imagenes/clientes_exportado_excel_cantinflas_doblerodeado_comillas.png)
+
+Para evitar complicaciones con las comas en un fichero de CSV (Comma Separated Values/Valores separados por Comas). Se opta por separar cada columna usando tabuladores (`\t`).
+
+En el juego de datos, ciertos clientes tienen en su dirección valores con comillas, `CALLE DE MARIO MORENO "CANTINFLAS"`. Y localidades que contienen comas `MOLINOS, LOS`.
+
+Microsoft Excel al exportar documentos XLSX a CSV (O ficheros separados por tabuladores), campos con comas lo rodeará con doble comillas (`"`). Esto puede ir en conflicto con campos de direcciones que contienen caractéres de doble comillas, como es el caso de `CANTINFLAS`. **Esto dificulta la sentencia de `LOAD DATA` en SQL**
+
+Lo que queremos es: tener un CSV (separado por tabuladores), y que cada campo se ve EXACTAMENTE como era cuando esté abierta en Excel.
+
+En Microsoft Office no hay opciones de personalizar el formato de exportado de CSV, o se exporta como CSV separado con comas, o tabuladores.
+
+En cambio, LibreOffice Calc permite la exportación de CSV (`Archivo -> Guardar Como, elegir "Texto CSV" como formato, guardar, Usar formato Texto CSV`) y te pregunta cómo quieres exportar. Incluyendo cómo es el separador de campos (por defecto: coma), y con qué carácter se rodea los campos con comas (Por defecto: doble-comilla). Con qué codificación, etc.
+
+![LibreOffice Calc: ventana de exportación CSV por defecto](docs_imagenes/libreoffice_wizard_exportcsv_default.png)
+
+Cambiamos "Delimitador de campos" a `{Tabulación}` y Delimitador de cadena a comilla simple `'`
+
+![LibreOffice Calc: ventana de exportación CSV modificado](docs_imagenes/libreoffice_wizard_exportcsv_modified.png)
+
+El exportador de CSV de LibreOffice es más inteligente, cuando configuramos los delimitador de campos y cadena como Tabulación y comilla simple respectivamente, cuando se encuentra con un campo que contiene comas, como separamos por tabulador, no hace falta usar comillas para rodear el campo, porque se distingue ya con el tabulador.
+
+![Notepad++ Clientes Exportado LibreOffice en tabulador: campo con coma rodeado separado por tabulador](docs_imagenes/clientes_exportado_libreoffice_elmoral_sin_comillas.png)
+
+![Notepad++ Clientes Exportado LibreOffice en tabulador: campo con comillas sin comilla-inception](docs_imagenes/clientes_exportado_libreoffice_cantinflas_sin_comillas_inception.png)
+
+Esto facilita infinitamente la sentencia de `LOAD DATA` en SQL. Puesto ahora los datos se ven exáctamente como se ve en Excel/LibreOffice.
+
+**Mucho cuidado con la fecha: en algunos sistemas configurado con diferentes región/idioma en el sistema.** El separador de fecha puede aparecer como raya `-` (2026-03-21) o como forward-slash `/` (2026/03/21). Esto habría que reflejarlo en la sentencia de `LOAD DATA` en su función de `STR_TO_DATE()`, para cambiar raya por forward-slash o vice-versa. **También hay que tener en cuenta el formato de nueva línea**, que en sistemas Unix se usa simplemente `\n`, mientras que en Windows se usa `\r\n`.
+
+Al final, para transformar el fichero original a CSV para tratarlo fácilmente con `LOAD DATA`, hay que:
+
+1. Abrir el fichero Excel original en LibreOffice
+2. En LibreOffice: `Archivo -> Guardar Como, elegir "Texto CSV" como formato, guardar, Usar formato Texto CSV`
+3. Cambiar delimitadores de campo y cadenas a `{Tabulación}` y comilla simple `'`
+4. Si es necesario, ajustar el separador de fecha y nuevas lineas en la sentencia `LOAD DATA`
+
+Estos pasos serán los mismos para `Clientes.xlsx` y para `Clientes_juegos.xlsx`. Siendo el juego de dato `Clientes_juegos` mucho más simple que `Clientes`, excepto la columna de comentario (que algunos contiene cadenas simples, otras con comas, y algunos con comas y puntos). Pero se aplica a ambos documentos el mismo tratamiento descrito arriba.
