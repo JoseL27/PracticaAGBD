@@ -735,6 +735,7 @@ Creamos el backup en formato SQL (desde phpmyadmin -> export por ejemplo), y acc
 
 - Borramos los contenidos de  la carpeta de datos de MariaDB (/opt/lampp/var/mysql en linux, C:/xampp/mysql/data en windows) menos la carpeta mysql
 - Editamos el archivo de configuración (/opt/lamp/etc/my.cnf en linux, C:/xampp/mysql/data/my.ini en windows) para modificar la variable innodb_page_size(4K, 16K, 64K) (y innodb_buffer_pool_size para el caso de 64K)
+- Ejecutar script create_tables.sql (C:\...\xampp\phpMyAdmin\sql\create_tables.sql en windows /opt/lampp/phpmyadmin/sql/create_tables.sql)
 - Arrancamos xampp y cargamos la base de datos desde backup
 
 - Tamaño para 4K: 26.5MB
